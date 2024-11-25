@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, X, Plus, Trash2 } from 'lucide-react';
 import { WellnessItem } from '../types';
+import { QRCodeSVG } from 'qrcode.react'
 
 interface Props {
   items: WellnessItem[];
@@ -13,6 +14,13 @@ export function ConfigModal({ items, onSave, isOpen, onClose }: Props) {
   const [editableItems, setEditableItems] = useState<WellnessItem[]>(() => [...items]);
   const [newItemLabel, setNewItemLabel] = useState('');
   const [newItemType, setNewItemType] = useState<'positive' | 'negative'>('positive');
+  const [showQR, setShowQR] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
+
+  useEffect(() => {
+    const url = window.location.origin + window.location.pathname
+    setShareUrl(url)
+  }, [])
 
   if (!isOpen) return null;
 
@@ -112,6 +120,36 @@ export function ConfigModal({ items, onSave, isOpen, onClose }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Add this near the URL sharing section */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <input 
+                type="text"
+                value={shareUrl}
+                readOnly
+                className="flex-1 bg-gray-700 text-white px-3 py-2 rounded-lg"
+              />
+              <button
+                onClick={() => setShowQR(!showQR)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                {showQR ? 'Hide QR' : 'Show QR'}
+              </button>
+            </div>
+            
+            {showQR && (
+              <div className="flex justify-center p-4 bg-gray-700 rounded">
+                <QRCodeSVG 
+                  value={shareUrl}
+                  size={200}
+                  level="H"
+                  includeMargin={true}
+                  style={{ background: '#374151', padding: '1rem' }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
