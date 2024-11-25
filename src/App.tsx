@@ -4,7 +4,7 @@ import { DateNavigation } from './components/DateNavigation';
 import { WellnessChart } from './components/WellnessChart';
 import { ConfigModal } from './components/ConfigModal';
 import { useWellnessData } from './hooks/useWellnessData';
-import { Activity, Settings } from 'lucide-react';
+import { Activity, Settings, Loader2 } from 'lucide-react';
 
 function App() {
   const {
@@ -15,10 +15,22 @@ function App() {
     toggleItem,
     calculateScore,
     getMaxScore,
-    updateItems
+    updateItems,
+    loading
   } = useWellnessData();
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+          <span>Loading your wellness data...</span>
+        </div>
+      </div>
+    );
+  }
 
   const currentRecord = getCurrentRecord();
   const positiveItems = data.items.filter(item => item.type === 'positive');

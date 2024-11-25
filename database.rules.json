@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        "data": {
+          ".validate": "newData.hasChildren(['items', 'records'])",
+          "items": {
+            "$item": {
+              ".validate": "newData.hasChildren(['id', 'label', 'type']) && (newData.child('type').val() === 'positive' || newData.child('type').val() === 'negative')"
+            }
+          },
+          "records": {
+            "$record": {
+              ".validate": "newData.hasChildren(['date', 'checkedItems']) && newData.child('date').isString() && newData.child('checkedItems').val() != null"
+            }
+          }
+        }
+      }
+    }
+  }
+} 

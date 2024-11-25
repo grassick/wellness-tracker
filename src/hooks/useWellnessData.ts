@@ -1,21 +1,63 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { WellnessData, DailyRecord, WellnessItem } from '../types';
 import { defaultItems } from '../data';
-
-const STORAGE_KEY = 'wellnessData';
+import { auth, database, signInAnonymously } from '../firebase';
+import { ref, onValue, set } from 'firebase/database';
+import { useSearchParams } from 'react-router-dom';
 
 export function useWellnessData() {
-  const [data, setData] = useState<WellnessData>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : { items: defaultItems, records: [] };
-  });
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [data, setData] = useState<WellnessData>({ items: defaultItems, records: [] });
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
+  const [loading, setLoading] = useState(true);
+
+  const unsubscribeRef = useRef<(() => void) | undefined>(undefined)
+
+  const initAuth = async () => {
+    try {
+      let uid = searchParams.get('uid')
+
+      if (!uid) {
+        const userCredential = await signInAnonymously(auth)
+        uid = userCredential.user.uid
+        setSearchParams({ uid })
+      }
+
+      const dataRef = ref(database, `users/${uid}/data`)
+      unsubscribeRef.current = onValue(dataRef, (snapshot) => {
+        const val = snapshot.val()
+        console.log('val', val)
+        if (val) {
+          setData({
+            items: val.items || defaultItems,
+            records: val.records || []
+          })
+        } else {
+          set(dataRef, { items: defaultItems, records: [] })
+        }
+        setLoading(false)
+      })
+    } catch (error) {
+      console.error('Error initializing auth:', error)
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current()
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log('useEffect starting')
+    initAuth().catch(console.error)
+
+    return () => {
+      console.log('useEffect unmounting')
+    }
+  }, [])
 
   const getDateString = (date: Date) => format(date, 'yyyy-MM-dd');
 
@@ -24,7 +66,7 @@ export function useWellnessData() {
     return data.records.find(r => r.date === dateStr) || { date: dateStr, checkedItems: [] };
   };
 
-  const toggleItem = (itemId: string) => {
+  const toggleItem = async (itemId: string) => {
     const dateStr = getDateString(selectedDate);
     const currentRecord = getCurrentRecord();
     const newCheckedItems = currentRecord.checkedItems.includes(itemId)
@@ -36,7 +78,12 @@ export function useWellnessData() {
       newRecords.push({ date: dateStr, checkedItems: newCheckedItems });
     }
 
-    setData(prev => ({ ...prev, records: newRecords }));
+    const newData = { ...data, records: newRecords };
+    const uid = searchParams.get('uid');
+    if (uid) {
+      await set(ref(database, `users/${uid}/data`), newData);
+    }
+    setData(newData);
   };
 
   const calculateScore = (record: DailyRecord) => {
@@ -54,8 +101,13 @@ export function useWellnessData() {
 
   const getMaxScore = () => data.items.length;
 
-  const updateItems = (newItems: WellnessItem[]) => {
-    setData(prev => ({ ...prev, items: newItems }));
+  const updateItems = async (newItems: WellnessItem[]) => {
+    const newData = { ...data, items: newItems };
+    const uid = searchParams.get('uid');
+    if (uid) {
+      await set(ref(database, `users/${uid}/data`), newData);
+    }
+    setData(newData);
   };
 
   return {
@@ -67,5 +119,6 @@ export function useWellnessData() {
     calculateScore,
     getMaxScore,
     updateItems,
+    loading
   };
 }
