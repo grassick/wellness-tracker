@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Settings, X, Plus, Trash2 } from 'lucide-react';
 import { WellnessItem } from '../types';
 import { QRCodeSVG } from 'qrcode.react'
@@ -15,12 +15,7 @@ export function ConfigModal({ items, onSave, isOpen, onClose }: Props) {
   const [newItemLabel, setNewItemLabel] = useState('');
   const [newItemType, setNewItemType] = useState<'positive' | 'negative'>('positive');
   const [showQR, setShowQR] = useState(false)
-  const [shareUrl, setShareUrl] = useState('')
-
-  useEffect(() => {
-    const url = window.location.origin + window.location.pathname
-    setShareUrl(url)
-  }, [])
+  const shareUrl = window.location.href
 
   if (!isOpen) return null;
 
