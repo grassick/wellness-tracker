@@ -12,20 +12,22 @@ export function useWellnessData() {
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [loading, setLoading] = useState(true);
 
+  const [uuid, setUuid] = useState<string>(() => {
+    const uuidFromParams = searchParams.get('uuid')
+    if (uuidFromParams) {
+      return uuidFromParams
+    }
+    return crypto.randomUUID()
+  })
+
   const unsubscribeRef = useRef<(() => void) | undefined>(undefined)
 
   const initAuth = async () => {
     try {
-      let uid = searchParams.get('uid')
+      await signInAnonymously(auth)
+      setSearchParams({ uuid })
 
-      if (!uid) {
-        const userCredential = await signInAnonymously(auth)
-        console.log('userCredential', userCredential)
-        uid = userCredential.user.uid
-        setSearchParams({ uid })
-      }
-
-      const dataRef = ref(database, `users/${uid}/data`)
+      const dataRef = ref(database, `users/${uuid}/data`)
       unsubscribeRef.current = onValue(dataRef, (snapshot) => {
         const val = snapshot.val()
         console.log('val', val)
@@ -46,16 +48,14 @@ export function useWellnessData() {
   }
 
   useEffect(() => {
-    console.log('useEffect starting')
     initAuth().catch(console.error)
 
     return () => {
-      console.log('useEffect unmounting')
       if (unsubscribeRef.current) {
         unsubscribeRef.current()
       }
     }
-  }, [searchParams])
+  }, [])
 
   const getDateString = (date: Date) => format(date, 'yyyy-MM-dd');
 
@@ -77,10 +77,7 @@ export function useWellnessData() {
     }
 
     const newData = { ...data, records: newRecords };
-    const uid = searchParams.get('uid');
-    if (uid) {
-      await set(ref(database, `users/${uid}/data`), newData);
-    }
+    await set(ref(database, `users/${uuid}/data`), newData);
     setData(newData);
   };
 
@@ -101,10 +98,7 @@ export function useWellnessData() {
 
   const updateItems = async (newItems: WellnessItem[]) => {
     const newData = { ...data, items: newItems };
-    const uid = searchParams.get('uid');
-    if (uid) {
-      await set(ref(database, `users/${uid}/data`), newData);
-    }
+    await set(ref(database, `users/${uuid}/data`), newData);
     setData(newData);
   };
 

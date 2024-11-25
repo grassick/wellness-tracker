@@ -1,9 +1,10 @@
 {
   "rules": {
     "users": {
-      "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid",
+      ".read": false,
+      "$uuid": {
+        ".read": "auth != null",
+        ".write": "auth != null",
         "data": {
           ".validate": "newData.hasChildren(['items', 'records'])",
           "items": {
