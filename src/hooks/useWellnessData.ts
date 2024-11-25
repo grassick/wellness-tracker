@@ -6,6 +6,8 @@ import { auth, database, signInAnonymously } from '../firebase';
 import { ref, onValue, set } from 'firebase/database';
 import { useSearchParams } from 'react-router-dom';
 
+const UUID_STORAGE_KEY = 'wellness-uuid'
+
 export function useWellnessData() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState<WellnessData>({ items: defaultItems, records: [] });
@@ -15,9 +17,18 @@ export function useWellnessData() {
   const [uuid, setUuid] = useState<string>(() => {
     const uuidFromParams = searchParams.get('uuid')
     if (uuidFromParams) {
+      localStorage.setItem(UUID_STORAGE_KEY, uuidFromParams)
       return uuidFromParams
     }
-    return crypto.randomUUID()
+
+    const storedUuid = localStorage.getItem(UUID_STORAGE_KEY)
+    if (storedUuid) {
+      return storedUuid
+    }
+
+    const newUuid = crypto.randomUUID()
+    localStorage.setItem(UUID_STORAGE_KEY, newUuid)
+    return newUuid
   })
 
   const unsubscribeRef = useRef<(() => void) | undefined>(undefined)
