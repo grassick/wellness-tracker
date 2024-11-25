@@ -20,6 +20,7 @@ export function useWellnessData() {
 
       if (!uid) {
         const userCredential = await signInAnonymously(auth)
+        console.log('userCredential', userCredential)
         uid = userCredential.user.uid
         setSearchParams({ uid })
       }
@@ -45,19 +46,16 @@ export function useWellnessData() {
   }
 
   useEffect(() => {
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current()
-    }
-  }, [])
-
-  useEffect(() => {
     console.log('useEffect starting')
     initAuth().catch(console.error)
 
     return () => {
       console.log('useEffect unmounting')
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current()
+      }
     }
-  }, [])
+  }, [searchParams])
 
   const getDateString = (date: Date) => format(date, 'yyyy-MM-dd');
 
