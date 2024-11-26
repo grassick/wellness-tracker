@@ -3,6 +3,7 @@ import { CheckboxGroup } from './components/CheckboxGroup';
 import { DateNavigation } from './components/DateNavigation';
 import { WellnessChart } from './components/WellnessChart';
 import { ConfigModal } from './components/ConfigModal';
+import WeightTracker from './components/WeightTracker';
 import { useWellnessData } from './hooks/useWellnessData';
 import { Activity, Settings, Loader2 } from 'lucide-react';
 
@@ -16,7 +17,9 @@ function App() {
     calculateScore,
     getMaxScore,
     updateItems,
-    loading
+    loading,
+    updateWeight,
+    getWeightData
   } = useWellnessData();
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -75,13 +78,13 @@ function App() {
           <CheckboxGroup
             title="Positive Habits"
             items={positiveItems}
-            checkedItems={currentRecord.checkedItems}
+            checkedItems={currentRecord.checkedItems || []}
             onToggle={toggleItem}
           />
           <CheckboxGroup
             title="Habits to Avoid"
             items={negativeItems}
-            checkedItems={currentRecord.checkedItems}
+            checkedItems={currentRecord.checkedItems || []}
             onToggle={toggleItem}
           />
         </div>
@@ -95,10 +98,22 @@ function App() {
             maxScore={maxScore}
           />
         </div>
+
+        {/* Weight Tracker */}
+        {data.weightTrackingEnabled && (
+          <div className="mt-8">
+            <WeightTracker
+              currentWeight={currentRecord.weight || null}
+              onWeightUpdate={updateWeight}
+              weightData={getWeightData()}
+            />
+          </div>
+        )}
       </div>
 
       <ConfigModal
         items={data.items}
+        weightTrackingEnabled={data.weightTrackingEnabled || false}
         onSave={updateItems}
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}

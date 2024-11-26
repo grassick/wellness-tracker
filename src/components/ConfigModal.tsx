@@ -5,17 +5,19 @@ import { QRCodeSVG } from 'qrcode.react'
 
 interface Props {
   items: WellnessItem[];
-  onSave: (items: WellnessItem[]) => void;
+  onSave: (items: WellnessItem[], weightTrackingEnabled: boolean) => void;
   isOpen: boolean;
   onClose: () => void;
+  weightTrackingEnabled: boolean;
 }
 
-export function ConfigModal({ items, onSave, isOpen, onClose }: Props) {
+export function ConfigModal({ items, onSave, isOpen, onClose, weightTrackingEnabled }: Props) {
   const [editableItems, setEditableItems] = useState<WellnessItem[]>(() => [...items]);
   const [newItemLabel, setNewItemLabel] = useState('');
   const [newItemType, setNewItemType] = useState<'positive' | 'negative'>('positive');
   const [showQR, setShowQR] = useState(false)
   const shareUrl = window.location.href
+  const [isWeightTrackingEnabled, setIsWeightTrackingEnabled] = useState(weightTrackingEnabled)
 
   if (!isOpen) return null;
 
@@ -35,7 +37,7 @@ export function ConfigModal({ items, onSave, isOpen, onClose }: Props) {
   };
 
   const handleSave = () => {
-    onSave(editableItems);
+    onSave(editableItems, isWeightTrackingEnabled);
     onClose();
   };
 
@@ -115,6 +117,23 @@ export function ConfigModal({ items, onSave, isOpen, onClose }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Add this before the URL sharing section */}
+          <div className="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+            <span className="text-white">Enable Weight Tracking</span>
+            <button
+              onClick={() => setIsWeightTrackingEnabled(!isWeightTrackingEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                isWeightTrackingEnabled ? 'bg-indigo-600' : 'bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  isWeightTrackingEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Add this near the URL sharing section */}

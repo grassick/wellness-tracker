@@ -9,16 +9,16 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
-import { WellnessData } from '../types';
+import { DailyRecord, WellnessData } from '../types';
 
 interface Props {
   data: WellnessData;
-  calculateScore: (record: any) => number;
+  calculateScore: (record: DailyRecord) => number;
   maxScore: number;
 }
 
 export function WellnessChart({ data, calculateScore, maxScore }: Props) {
-  const chartData = data.records
+  const chartData = [...data.records]
     .sort((a, b) => a.date.localeCompare(b.date))
     .map(record => ({
       date: record.date,
