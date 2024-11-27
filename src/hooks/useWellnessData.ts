@@ -95,8 +95,8 @@ export function useWellnessData() {
       record.checkedItems = newCheckedItems;
     });
 
-    setData(newData);
     await set(ref(database, `users/${uuid}/data`), newData);
+    setData(newData);
   };
 
   const updateWeight = async (weight: number | undefined) => {
@@ -112,8 +112,8 @@ export function useWellnessData() {
       record.weight = weight || null;
     });
 
-    setData(newData);
     await set(ref(database, `users/${uuid}/data`), newData);
+    setData(newData);
   };
 
   const calculateScore = (record: DailyRecord) => {

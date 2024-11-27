@@ -42,10 +42,10 @@ export function ConfigModal({ items, onSave, isOpen, onClose, weightTrackingEnab
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:flex md:items-center md:justify-center md:p-4">
-      <div className="bg-gray-800 w-full h-full md:h-auto md:rounded-lg md:max-w-2xl md:p-6 flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6">
+      <div className="bg-gray-800 w-full max-w-4xl h-full overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 md:p-0 mb-6">
+        <div className="flex justify-between items-center p-4 mb-6">
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
             <Settings size={20} className="text-indigo-400" />
             Configure Habits
@@ -59,7 +59,7 @@ export function ConfigModal({ items, onSave, isOpen, onClose, weightTrackingEnab
         </div>
 
         {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto p-4 md:px-0 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {/* Add new item form */}
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
@@ -168,7 +168,7 @@ export function ConfigModal({ items, onSave, isOpen, onClose, weightTrackingEnab
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-700 p-4 md:p-0 md:pt-4">
+        <div className="border-t border-gray-700 p-4">
           <div className="flex justify-end gap-3">
             <button
               onClick={onClose}
