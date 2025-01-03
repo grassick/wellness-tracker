@@ -28,7 +28,7 @@ export function WellnessChart({ data, calculateScore, maxScore }: Props) {
   return (
     <div className="h-[300px] w-full bg-gray-800 rounded-lg p-4">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis
             dataKey="date"
@@ -38,6 +38,10 @@ export function WellnessChart({ data, calculateScore, maxScore }: Props) {
           <YAxis
             domain={[0, maxScore]}
             stroke="#9CA3AF"
+            tickSize={0}
+            tickCount={0}
+            axisLine={true}
+            tick={false}
           />
           <Tooltip
             contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
